@@ -182,3 +182,14 @@ func (s *PaymentService) CreatePayment(ctx context.Context, body dto.CreatePayme
 		PaidAt:    payment.PaidAt.Format(time.RFC3339),
 	}, nil
 }
+
+func (s *PaymentService) GetAllPayments(ctx context.Context) (*dto.GetAllPaymentsResponseDto, error) {
+	payments, err := s.paymentRepository.FindAll(ctx)
+	if err != nil {
+		return nil, apperr.New(apperr.CodeInternal, "failed to retrieve payments", err)
+	}
+
+	return &dto.GetAllPaymentsResponseDto{
+		Payments: dto.ToPaymentDtoList(payments),
+	}, nil
+}

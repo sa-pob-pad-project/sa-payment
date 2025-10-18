@@ -38,6 +38,27 @@ func (h *PaymentHandler) CreatePayment(c *fiber.Ctx) error {
 	return response.Created(c, res)
 }
 
+// GetAllPayments godoc
+// @Summary List payments
+// @Description Retrieve all payment records
+// @Tags payments
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.GetAllPaymentsResponseDto "Payments retrieved successfully"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 500 {object} response.ErrorResponse "Failed to retrieve payments"
+// @Router /api/payment/v1/ [get]
+// @Security ApiKeyAuth
+func (h *PaymentHandler) GetAllPayments(c *fiber.Ctx) error {
+	ctx := contextUtils.GetContext(c)
+	res, err := h.paymentService.GetAllPayments(ctx)
+	if err != nil {
+		return apperr.WriteError(c, err)
+	}
+
+	return response.OK(c, res)
+}
+
 // CreatePaymentAttempt godoc
 // @Summary Create payment attempt
 // @Description Create a new payment attempt for the authenticated patient
