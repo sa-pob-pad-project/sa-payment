@@ -59,6 +59,35 @@ func (h *PaymentHandler) GetAllPayments(c *fiber.Ctx) error {
 	return response.OK(c, res)
 }
 
+// GetPaymentByID godoc
+// @Summary Get payment by ID
+// @Description Retrieve a payment record by its identifier
+// @Tags payments
+// @Accept json
+// @Produce json
+// @Param id path string true "Payment ID"
+// @Success 200 {object} dto.GetPaymentByIDResponseDto "Payment retrieved successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid payment ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Payment not found"
+// @Failure 500 {object} response.ErrorResponse "Failed to retrieve payment"
+// @Router /api/payment/v1/{id} [get]
+// @Security ApiKeyAuth
+func (h *PaymentHandler) GetPaymentByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return response.BadRequest(c, "Missing payment ID")
+	}
+
+	ctx := contextUtils.GetContext(c)
+	res, err := h.paymentService.GetPaymentByID(ctx, id)
+	if err != nil {
+		return apperr.WriteError(c, err)
+	}
+
+	return response.OK(c, res)
+}
+
 // CreatePaymentAttempt godoc
 // @Summary Create payment attempt
 // @Description Create a new payment attempt for the authenticated patient

@@ -18,6 +18,10 @@ type GetAllPaymentsResponseDto struct {
 	Payments []PaymentDto `json:"payments"`
 }
 
+type GetPaymentByIDResponseDto struct {
+	Payment PaymentDto `json:"payment"`
+}
+
 func ToPaymentDto(payment *models.Payment) PaymentDto {
 	return PaymentDto{
 		PaymentID: payment.ID.String(),

@@ -193,3 +193,22 @@ func (s *PaymentService) GetAllPayments(ctx context.Context) (*dto.GetAllPayment
 		Payments: dto.ToPaymentDtoList(payments),
 	}, nil
 }
+
+func (s *PaymentService) GetPaymentByID(ctx context.Context, paymentID string) (*dto.GetPaymentByIDResponseDto, error) {
+	id := utils.StringToUUIDv7(paymentID)
+	if id == uuid.Nil {
+		return nil, apperr.New(apperr.CodeBadRequest, "invalid payment ID", nil)
+	}
+
+	payment, err := s.paymentRepository.FindByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperr.New(apperr.CodeNotFound, "payment not found", nil)
+		}
+		return nil, apperr.New(apperr.CodeInternal, "failed to retrieve payment", err)
+	}
+
+	return &dto.GetPaymentByIDResponseDto{
+		Payment: dto.ToPaymentDto(payment),
+	}, nil
+}
