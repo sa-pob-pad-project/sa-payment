@@ -25,7 +25,7 @@ func SetupRoutes(app *fiber.App, paymentHandler *handlers.PaymentHandler, jwtSvc
 	paymentV1.Post("/info", paymentHandler.CreatePaymentInfo)
 	paymentV1.Put("/info", paymentHandler.UpdatePaymentInfo)
 	paymentV1.Delete("/info", paymentHandler.DeletePaymentInfo)
-	paymentV1.Get("/info", paymentHandler.GetAllPaymentInfo)
+	paymentV1.Get("/info", paymentHandler.GetAllPaymentInfos)
 	paymentV1.Get("/info/:id", paymentHandler.GetPaymentInfo)
 	// payment transaction routes
 }

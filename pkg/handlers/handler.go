@@ -8,7 +8,6 @@ import (
 	service "order-service/pkg/services"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 type PaymentHandler struct {
@@ -21,7 +20,20 @@ func NewPaymentHandler(paymentService *service.PaymentService) *PaymentHandler {
 	}
 }
 
-// CreatePaymentInfo creates a new payment information record
+// CreatePaymentInfo godoc
+// @Summary Create payment information
+// @Description Create a new payment method for the authenticated patient
+// @Tags payment-info
+// @Accept json
+// @Produce json
+// @Param payment_info body dto.CreatePaymentInfoRequestDto true "Payment information to create"
+// @Success 201 {object} dto.CreatePaymentInfoResponseDto "Payment information created successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 403 {object} response.ErrorResponse "Forbidden"
+// @Failure 500 {object} response.ErrorResponse "Failed to create payment information"
+// @Router /api/payment/v1/info [post]
+// @Security ApiKeyAuth
 func (h *PaymentHandler) CreatePaymentInfo(c *fiber.Ctx) error {
 	var body dto.CreatePaymentInfoRequestDto
 	if err := c.BodyParser(&body); err != nil {
@@ -37,125 +49,116 @@ func (h *PaymentHandler) CreatePaymentInfo(c *fiber.Ctx) error {
 	return response.Created(c, res)
 }
 
-// GetPaymentInfo retrieves a payment information by ID
+// GetPaymentInfo godoc
+// @Summary Get payment information by ID
+// @Description Retrieve a payment information record by its identifier
+// @Tags payment-info
+// @Accept json
+// @Produce json
+// @Param id path string true "Payment information ID"
+// @Success 200 {object} dto.GetPaymentInfoByIDResponseDto "Payment information retrieved successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid payment information ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Payment information not found"
+// @Failure 500 {object} response.ErrorResponse "Failed to retrieve payment information"
+// @Router /api/payment/v1/info/{id} [get]
+// @Security ApiKeyAuth
 func (h *PaymentHandler) GetPaymentInfo(c *fiber.Ctx) error {
 	id := c.Params("id")
-	ctx := contextUtils.GetContext(c)
-
-	paymentID, err := uuid.Parse(id)
-	if err != nil {
-		return response.BadRequest(c, "Invalid payment ID format")
-	}
-
-	paymentInfo, err := h.paymentService.GetPaymentInformationByID(ctx, paymentID)
-	if err != nil {
-		return apperr.WriteError(c, err)
-	}
-
-	res := &dto.GetPaymentInfoResponseDto{
-		ID:            paymentInfo.ID.String(),
-		UserID:        paymentInfo.UserID.String(),
-		PaymentMethod: paymentInfo.Type,
-		Details:       paymentInfo.Details,
-		Version:       paymentInfo.Version,
-		CreatedAt:     paymentInfo.CreatedAt,
-	}
-
-	return response.OK(c, res)
-}
-
-// GetAllPaymentInfo retrieves all payment information for the authenticated user
-func (h *PaymentHandler) GetAllPaymentInfo(c *fiber.Ctx) error {
-	ctx := contextUtils.GetContext(c)
-
-	userIDStr := contextUtils.GetUserId(ctx)
-	userID, err := uuid.Parse(userIDStr)
-	if err != nil {
-		return response.BadRequest(c, "Invalid user ID format")
-	}
-
-	paymentInfos, err := h.paymentService.GetAllPaymentInfo(ctx, userID)
-	if err != nil {
-		return apperr.WriteError(c, err)
-	}
-
-	var res []dto.GetPaymentInfoResponseDto
-	for _, pi := range paymentInfos {
-		res = append(res, dto.GetPaymentInfoResponseDto{
-			ID:            pi.ID.String(),
-			UserID:        pi.UserID.String(),
-			PaymentMethod: pi.Type,
-			Details:       pi.Details,
-			Version:       pi.Version,
-			CreatedAt:     pi.CreatedAt,
+	if id == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Missing payment information ID",
 		})
 	}
 
-	return response.OK(c, res)
+	ctx := contextUtils.GetContext(c)
+	res, err := h.paymentService.GetPaymentInfoByID(ctx, id)
+	if err != nil {
+		return apperr.WriteError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(res)
 }
 
-// UpdatePaymentInfo updates a payment information record
+// GetAllPaymentInfos godoc
+// @Summary List payment information
+// @Description Retrieve all payment information records for the authenticated patient
+// @Tags payment-info
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.GetAllPaymentInfosResponseDto "Payment information retrieved successfully"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 500 {object} response.ErrorResponse "Failed to retrieve payment information"
+// @Router /api/payment/v1/info [get]
+// @Security ApiKeyAuth
+func (h *PaymentHandler) GetAllPaymentInfos(c *fiber.Ctx) error {
+	ctx := contextUtils.GetContext(c)
+	res, err := h.paymentService.GetAllPaymentInfos(ctx)
+	if err != nil {
+		return apperr.WriteError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(res)
+}
+
+// UpdatePaymentInfo godoc
+// @Summary Update payment information
+// @Description Update an existing payment information record
+// @Tags payment-info
+// @Accept json
+// @Produce json
+// @Param payment_info body dto.UpdatePaymentInfoRequestDto true "Payment information to update"
+// @Success 200 {object} dto.UpdatePaymentInfoResponseDto "Payment information updated successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Payment information not found"
+// @Failure 500 {object} response.ErrorResponse "Failed to update payment information"
+// @Router /api/payment/v1/info [put]
+// @Security ApiKeyAuth
 func (h *PaymentHandler) UpdatePaymentInfo(c *fiber.Ctx) error {
 	var body dto.UpdatePaymentInfoRequestDto
 	if err := c.BodyParser(&body); err != nil {
-		return response.BadRequest(c, "Invalid request body "+err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body " + err.Error(),
+		})
 	}
+
 	ctx := contextUtils.GetContext(c)
-
-	paymentID, err := uuid.Parse(body.ID)
-	if err != nil {
-		return response.BadRequest(c, "Invalid payment ID format")
-	}
-
-	// Get existing payment info
-	existingPaymentInfo, err := h.paymentService.GetPaymentInformationByID(ctx, paymentID)
+	res, err := h.paymentService.UpdatePaymentInfo(ctx, body)
 	if err != nil {
 		return apperr.WriteError(c, err)
 	}
 
-	// Update fields
-	if body.PaymentMethod != "" {
-		existingPaymentInfo.Type = body.PaymentMethod
-	}
-	if body.Details != nil {
-		existingPaymentInfo.Details = body.Details
-	}
-	if body.Version > 0 {
-		existingPaymentInfo.Version = body.Version
-	}
-
-	if err := h.paymentService.UpdatePaymentInformation(ctx, existingPaymentInfo); err != nil {
-		return apperr.WriteError(c, err)
-	}
-
-	res := &dto.GetPaymentInfoResponseDto{
-		ID:            existingPaymentInfo.ID.String(),
-		UserID:        existingPaymentInfo.UserID.String(),
-		PaymentMethod: existingPaymentInfo.Type,
-		Details:       existingPaymentInfo.Details,
-		Version:       existingPaymentInfo.Version,
-		CreatedAt:     existingPaymentInfo.CreatedAt,
-	}
-
-	return response.OK(c, res)
+	return c.Status(fiber.StatusOK).JSON(res)
 }
 
-// DeletePaymentInfo deletes a payment information record
+// DeletePaymentInfo godoc
+// @Summary Delete payment information
+// @Description Delete an existing payment information record
+// @Tags payment-info
+// @Accept json
+// @Produce json
+// @Param payment_info body dto.DeletePaymentInfoRequestDto true "Payment information ID to delete"
+// @Success 200 {object} dto.DeletePaymentInfoResponseDto "Payment information deleted successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Payment information not found"
+// @Failure 500 {object} response.ErrorResponse "Failed to delete payment information"
+// @Router /api/payment/v1/info [delete]
+// @Security ApiKeyAuth
 func (h *PaymentHandler) DeletePaymentInfo(c *fiber.Ctx) error {
 	var body dto.DeletePaymentInfoRequestDto
 	if err := c.BodyParser(&body); err != nil {
-		return response.BadRequest(c, "Invalid request body "+err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body " + err.Error(),
+		})
 	}
+
 	ctx := contextUtils.GetContext(c)
-
-	paymentID, err := uuid.Parse(body.ID)
+	res, err := h.paymentService.DeletePaymentInfo(ctx, body.ID)
 	if err != nil {
-		return response.BadRequest(c, "Invalid payment ID format")
-	}
-
-	if err := h.paymentService.DeletePaymentInformation(ctx, paymentID); err != nil {
 		return apperr.WriteError(c, err)
 	}
 
-	return response.OK(c, map[string]string{"message": "Payment information deleted successfully"})
+	return c.Status(fiber.StatusOK).JSON(res)
 }

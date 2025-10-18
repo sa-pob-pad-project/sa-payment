@@ -2,7 +2,6 @@ package dto
 
 import (
 	"encoding/json"
-	"time"
 
 	"order-service/pkg/models"
 )
@@ -27,11 +26,15 @@ type CreatePaymentInfoRequestDto struct {
 }
 
 // Response
+//
+//	type CreatePaymentInfoResponseDto struct {
+//		ID            string               `json:"id"`
+//		UserID        string               `json:"user_id"`
+//		PaymentMethod models.PaymentMethod `json:"payment_method"`
+//		Details       json.RawMessage      `json:"details"`
+//		Version       int                  `json:"version"`
+//		CreatedAt     time.Time            `json:"created_at"`
+//	}
 type CreatePaymentInfoResponseDto struct {
-	ID            string               `json:"id"`
-	UserID        string               `json:"user_id"`
-	PaymentMethod models.PaymentMethod `json:"payment_method"`
-	Details       json.RawMessage      `json:"details"`
-	Version       int                  `json:"version"`
-	CreatedAt     time.Time            `json:"created_at"`
+	PaymentInfo PaymentInfoDto `json:"payment_info"`
 }
