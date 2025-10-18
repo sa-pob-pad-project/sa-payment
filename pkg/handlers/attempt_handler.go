@@ -9,6 +9,35 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// CreatePayment godoc
+// @Summary Create payment
+// @Description Create a payment record for a successful payment attempt
+// @Tags payments
+// @Accept json
+// @Produce json
+// @Param payment body dto.CreatePaymentRequestDto true "Payment creation payload"
+// @Success 201 {object} dto.CreatePaymentResponseDto "Payment created successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body or business rule violation"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Payment attempt not found"
+// @Failure 500 {object} response.ErrorResponse "Failed to create payment"
+// @Router /api/payment/v1/ [post]
+// @Security ApiKeyAuth
+func (h *PaymentHandler) CreatePayment(c *fiber.Ctx) error {
+	var body dto.CreatePaymentRequestDto
+	if err := c.BodyParser(&body); err != nil {
+		return response.BadRequest(c, "Invalid request body "+err.Error())
+	}
+
+	ctx := contextUtils.GetContext(c)
+	res, err := h.paymentService.CreatePayment(ctx, body)
+	if err != nil {
+		return apperr.WriteError(c, err)
+	}
+
+	return response.Created(c, res)
+}
+
 // CreatePaymentAttempt godoc
 // @Summary Create payment attempt
 // @Description Create a new payment attempt for the authenticated patient
