@@ -2,9 +2,13 @@ package service
 
 import (
 	"context"
+	"order-service/pkg/apperr"
 	"order-service/pkg/clients"
+	contextUtils "order-service/pkg/context"
+	"order-service/pkg/dto"
 	"order-service/pkg/models"
 	"order-service/pkg/repository"
+	"order-service/pkg/utils"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -16,7 +20,6 @@ type PaymentService struct {
 	paymentAttemptRepository     *repository.PaymentAttemptRepository
 	paymentRepository            *repository.PaymentRepository
 	userClient                   *clients.UserClient
-
 }
 
 func NewPaymentService(
@@ -35,9 +38,72 @@ func NewPaymentService(
 	}
 }
 
+// func (s *OrderService) CreateOrder(ctx context.Context, body dto.CreateOrderRequestDto) (*dto.CreateOrderResponseDto, error) {
+// 	userID := contextUtils.GetUserId(ctx)
+// 	role := contextUtils.GetRole(ctx)
+
+// 	if role != "patient" {
+// 		return nil, apperr.New(apperr.CodeForbidden, "only patients can create orders", nil)
+// 	}
+// 	patientID, err := uuid.Parse(userID)
+// 	if err != nil {
+// 		return nil, apperr.New(apperr.CodeBadRequest, "invalid user ID", err)
+// 	}
+// 	appointment, err := s.appointmentClient.GetLatestAppointmentByPatientID(ctx, patientID)
+// 	if err != nil {
+// 		return nil, apperr.New(apperr.CodeInternal, "failed to get latest appointment", err)
+// 	}
+// 	if appointment == nil {
+// 		return nil, apperr.New(apperr.CodeBadRequest, "patient has no appointment history", nil)
+// 	}
+
+// 	did := utils.StringToUUIDv7(appointment.DoctorID)
+// 	order := &models.Order{
+// 		ID:        utils.GenerateUUIDv7(),
+// 		PatientID: patientID,
+// 		DoctorID:  &did,
+// 		Note:      body.Note,
+// 		Status:    models.OrderStatusPending,
+// 	}
+
+// 	if err := s.orderRepository.Create(ctx, order); err != nil {
+// 		return nil, apperr.New(apperr.CodeInternal, "failed to create order", err)
+// 	}
+
+// 	return &dto.CreateOrderResponseDto{
+// 		OrderID: order.ID.String(),
+// 	}, nil
+// }
+
 // CreatePaymentInformation creates a new payment information record
-func (s *PaymentService) CreatePaymentInformation(ctx context.Context, paymentInfo *models.PaymentInformation) error {
-	return s.paymentInformationRepository.Create(ctx, paymentInfo)
+func (s *PaymentService) CreatePaymentInfo(ctx context.Context, body dto.CreatePaymentInfoRequestDto) (*dto.CreatePaymentInfoResponseDto, error) {
+	patientID := contextUtils.GetUserId(ctx)
+	role := contextUtils.GetRole(ctx)
+
+	if role != "patient" {
+		return nil, apperr.New(apperr.CodeForbidden, "only patients can create payment information", nil)
+	}
+
+	paymentInfo := &models.PaymentInformation{
+		ID:      utils.GenerateUUIDv7(),
+		UserID:  utils.StringToUUIDv7(patientID),
+		Type:    body.PaymentMethod,
+		Details: body.Details,
+		Version: 1,
+	}
+
+	if err := s.paymentInformationRepository.Create(ctx, paymentInfo); err != nil {
+		return nil, apperr.New(apperr.CodeInternal, "failed to create payment info", err)
+	}
+
+	return &dto.CreatePaymentInfoResponseDto{
+		ID:            paymentInfo.ID.String(),
+		UserID:        paymentInfo.UserID.String(),
+		PaymentMethod: paymentInfo.Type,
+		Details:       paymentInfo.Details,
+		Version:       paymentInfo.Version,
+		CreatedAt:     paymentInfo.CreatedAt,
+	}, nil
 }
 
 // GetPaymentInformationByID retrieves a payment information by ID
@@ -46,7 +112,7 @@ func (s *PaymentService) GetPaymentInformationByID(ctx context.Context, id uuid.
 }
 
 // GetPaymentInformationByUserID retrieves all payment information for a user
-func (s *PaymentService) GetPaymentInformationByUserID(ctx context.Context, userID uuid.UUID) ([]models.PaymentInformation, error) {
+func (s *PaymentService) GetAllPaymentInfo(ctx context.Context, userID uuid.UUID) ([]models.PaymentInformation, error) {
 	return s.paymentInformationRepository.FindByUserID(ctx, userID)
 }
 
