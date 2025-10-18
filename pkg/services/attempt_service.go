@@ -53,3 +53,31 @@ func (s *PaymentService) CreatePaymentAttempt(ctx context.Context, body dto.Crea
 		PaymentAttemptID: paymentAttempt.ID.String(),
 	}, nil
 }
+
+func (s *PaymentService) GetPaymentAttempt(ctx context.Context, paymentAttemptID string) (*dto.GetPaymentAttemptResponseDto, error) {
+	id := utils.StringToUUIDv7(paymentAttemptID)
+	if id == uuid.Nil {
+		return nil, apperr.New(apperr.CodeBadRequest, "invalid payment attempt ID", nil)
+	}
+
+	paymentAttempt, err := s.paymentAttemptRepository.FindByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperr.New(apperr.CodeNotFound, "payment attempt not found", nil)
+		}
+		return nil, apperr.New(apperr.CodeInternal, "failed to retrieve payment attempt", err)
+	}
+
+	response := &dto.GetPaymentAttemptResponseDto{
+		PaymentAttemptID: paymentAttempt.ID.String(),
+		OrderID:          paymentAttempt.OrderID.String(),
+		Method:           paymentAttempt.Method,
+		Status:           paymentAttempt.Status,
+	}
+
+	if paymentAttempt.PaymentInformationID != nil {
+		response.PaymentInfoID = paymentAttempt.PaymentInformationID.String()
+	}
+
+	return response, nil
+}
