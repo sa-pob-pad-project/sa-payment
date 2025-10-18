@@ -30,5 +30,5 @@ func SetupRoutes(app *fiber.App, paymentHandler *handlers.PaymentHandler, jwtSvc
 	// payment attempt routes
 	paymentV1.Post("/attempt", paymentHandler.CreatePaymentAttempt)
 	paymentV1.Get("/attempt/:id", paymentHandler.GetPaymentAttempt)
-	// paymentV1.Patch("/attempt", paymentHandler.UpdatePaymentAttempt)
+	paymentV1.Patch("/attempt", paymentHandler.UpdatePaymentAttempt)
 }

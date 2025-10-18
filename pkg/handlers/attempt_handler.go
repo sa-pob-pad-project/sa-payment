@@ -69,3 +69,34 @@ func (h *PaymentHandler) GetPaymentAttempt(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(res)
 }
+
+// UpdatePaymentAttempt godoc
+// @Summary Update payment attempt status
+// @Description Update the status of an existing payment attempt
+// @Tags payment-attempt
+// @Accept json
+// @Produce json
+// @Param payment_attempt body dto.UpdatePaymentAttemptRequestDto true "Payment attempt status update payload"
+// @Success 200 {object} dto.UpdatePaymentAttemptResponseDto "Payment attempt updated successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body or identifiers"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Payment attempt not found"
+// @Failure 500 {object} response.ErrorResponse "Failed to update payment attempt"
+// @Router /api/payment/v1/attempt [patch]
+// @Security ApiKeyAuth
+func (h *PaymentHandler) UpdatePaymentAttempt(c *fiber.Ctx) error {
+	var body dto.UpdatePaymentAttemptRequestDto
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body " + err.Error(),
+		})
+	}
+
+	ctx := contextUtils.GetContext(c)
+	res, err := h.paymentService.UpdatePaymentAttempt(ctx, body)
+	if err != nil {
+		return apperr.WriteError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(res)
+}

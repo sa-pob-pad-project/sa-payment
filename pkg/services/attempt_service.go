@@ -81,3 +81,56 @@ func (s *PaymentService) GetPaymentAttempt(ctx context.Context, paymentAttemptID
 
 	return response, nil
 }
+
+func (s *PaymentService) UpdatePaymentAttempt(ctx context.Context, body dto.UpdatePaymentAttemptRequestDto) (*dto.UpdatePaymentAttemptResponseDto, error) {
+	if body.Status == "" {
+		return nil, apperr.New(apperr.CodeBadRequest, "status is required", nil)
+	}
+
+	if !isValidPaymentStatus(body.Status) {
+		return nil, apperr.New(apperr.CodeBadRequest, "invalid payment status provided", nil)
+	}
+
+	id := utils.StringToUUIDv7(body.PaymentAttemptID)
+	if id == uuid.Nil {
+		return nil, apperr.New(apperr.CodeBadRequest, "invalid payment attempt ID", nil)
+	}
+
+	paymentAttempt, err := s.paymentAttemptRepository.FindByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperr.New(apperr.CodeNotFound, "payment attempt not found", nil)
+		}
+		return nil, apperr.New(apperr.CodeInternal, "failed to retrieve payment attempt", err)
+	}
+
+	paymentAttempt.Status = body.Status
+
+	if err := s.paymentAttemptRepository.Update(ctx, paymentAttempt); err != nil {
+		return nil, apperr.New(apperr.CodeInternal, "failed to update payment attempt", err)
+	}
+
+	response := &dto.UpdatePaymentAttemptResponseDto{
+		PaymentAttemptID: paymentAttempt.ID.String(),
+		OrderID:          paymentAttempt.OrderID.String(),
+		Method:           paymentAttempt.Method,
+		Status:           paymentAttempt.Status,
+	}
+
+	if paymentAttempt.PaymentInformationID != nil {
+		response.PaymentInfoID = paymentAttempt.PaymentInformationID.String()
+	}
+
+	return response, nil
+}
+
+func isValidPaymentStatus(status models.PaymentStatus) bool {
+	switch status {
+	case models.PaymentStatusPending,
+		models.PaymentStatusSuccess,
+		models.PaymentStatusFailed:
+		return true
+	default:
+		return false
+	}
+}
