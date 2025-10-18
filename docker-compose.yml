@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  sa_payment_postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: sa_payment
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5435:5432"
+    volumes:
+      - ./volume/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d sa_payment"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+  # sa_payment:
+  #   image: sa_payment:latest
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8003:8003"
+  #   depends_on:
+  #     sa_payment_postgres:
+  #       condition: service_healthy
+  #   environment:
+  #     - DB_HOST=sa_payment_postgres
+  #     - DB_PORT=5432
+
+networks:
+  default:
+    driver: bridge
+

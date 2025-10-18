@@ -1,0 +1,17 @@
+basePath: /
+host: localhost:8083
+info:
+  contact: {}
+  description: This is a sample server for a user API.
+  title: User API
+  version: "1.0"
+paths: {}
+schemes:
+- http
+securityDefinitions:
+  ApiKeyAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
