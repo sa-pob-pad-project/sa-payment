@@ -16,19 +16,19 @@ services:
       timeout: 2s
       retries: 20
 
-  # sa_payment:
-  #   image: sa_payment:latest
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "8003:8003"
-  #   depends_on:
-  #     sa_payment_postgres:
-  #       condition: service_healthy
-  #   environment:
-  #     - DB_HOST=sa_payment_postgres
-  #     - DB_PORT=5432
+  sa_payment:
+    image: sa_payment:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    depends_on:
+      sa_payment_postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=sa_payment_postgres
+      - DB_PORT=5432
 
 networks:
   default:
