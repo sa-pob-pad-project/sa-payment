@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql/driver"
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -32,10 +31,10 @@ func (pm *PaymentMethod) Scan(value interface{}) error {
 
 // PaymentInformation represents the payment_informations table
 type PaymentInformation struct {
-	ID        uuid.UUID       `db:"id" json:"id"`
-	UserID    uuid.UUID       `db:"user_id" json:"user_id"`
-	Type      PaymentMethod   `db:"type" json:"type"`
-	Details   json.RawMessage `db:"details" json:"details"`
-	Version   int             `db:"version" json:"version"`
-	CreatedAt time.Time       `db:"created_at" json:"created_at"`
+	ID        uuid.UUID     `db:"id" json:"id"`
+	UserID    uuid.UUID     `db:"user_id" json:"user_id"`
+	Type      PaymentMethod `db:"type" json:"type"`
+	Details   []byte        `db:"details" json:"details"`
+	Version   int           `db:"version" json:"version"`
+	CreatedAt time.Time     `db:"created_at" json:"created_at"`
 }

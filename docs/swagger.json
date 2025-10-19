@@ -11,7 +11,989 @@
     },
     "host": "localhost:8083",
     "basePath": "/",
-    "paths": {},
+    "paths": {
+        "/api/payment/v1/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve all payment records",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "List payments",
+                "responses": {
+                    "200": {
+                        "description": "Payments retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetAllPaymentsResponseDto"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve payments",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a payment record for a successful payment attempt",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Create payment",
+                "parameters": [
+                    {
+                        "description": "Payment creation payload",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePaymentRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Payment created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePaymentResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or business rule violation",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment attempt not found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create payment",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/v1/attempt": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new payment attempt for the authenticated patient",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment-attempt"
+                ],
+                "summary": "Create payment attempt",
+                "parameters": [
+                    {
+                        "description": "Payment attempt data",
+                        "name": "payment_attempt",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePaymentAttemptRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Payment attempt created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePaymentAttemptResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or identifiers",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment information not found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create payment attempt",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update the status of an existing payment attempt",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment-attempt"
+                ],
+                "summary": "Update payment attempt status",
+                "parameters": [
+                    {
+                        "description": "Payment attempt status update payload",
+                        "name": "payment_attempt",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdatePaymentAttemptRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment attempt updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdatePaymentAttemptResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or identifiers",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment attempt not found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update payment attempt",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/v1/attempt/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a payment attempt record by its identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment-attempt"
+                ],
+                "summary": "Get payment attempt by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payment attempt ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment attempt retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetPaymentAttemptResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payment attempt ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment attempt not found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve payment attempt",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/v1/info": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve all payment information records for the authenticated patient",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment-info"
+                ],
+                "summary": "List payment information",
+                "responses": {
+                    "200": {
+                        "description": "Payment information retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetAllPaymentInfosResponseDto"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve payment information",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update an existing payment information record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment-info"
+                ],
+                "summary": "Update payment information",
+                "parameters": [
+                    {
+                        "description": "Payment information to update",
+                        "name": "payment_info",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdatePaymentInfoRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment information updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdatePaymentInfoResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment information not found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update payment information",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new payment method for the authenticated patient",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment-info"
+                ],
+                "summary": "Create payment information",
+                "parameters": [
+                    {
+                        "description": "Payment information to create",
+                        "name": "payment_info",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePaymentInfoRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Payment information created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePaymentInfoResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create payment information",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete an existing payment information record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment-info"
+                ],
+                "summary": "Delete payment information",
+                "parameters": [
+                    {
+                        "description": "Payment information ID to delete",
+                        "name": "payment_info",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.DeletePaymentInfoRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment information deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DeletePaymentInfoResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment information not found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete payment information",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/v1/info/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a payment information record by its identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment-info"
+                ],
+                "summary": "Get payment information by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payment information ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment information retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetPaymentInfoByIDResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payment information ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment information not found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve payment information",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/v1/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a payment record by its identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Get payment by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetPaymentByIDResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payment ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment not found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve payment",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.CreatePaymentAttemptRequestDto": {
+            "type": "object",
+            "required": [
+                "order_id",
+                "payment_info_id"
+            ],
+            "properties": {
+                "order_id": {
+                    "type": "string"
+                },
+                "payment_info_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreatePaymentAttemptResponseDto": {
+            "type": "object",
+            "properties": {
+                "payment_attempt_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreatePaymentInfoRequestDto": {
+            "type": "object",
+            "required": [
+                "details",
+                "payment_method"
+            ],
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "payment_method": {
+                    "enum": [
+                        "credit_card",
+                        "promptpay"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PaymentMethod"
+                        }
+                    ]
+                }
+            }
+        },
+        "dto.CreatePaymentInfoResponseDto": {
+            "type": "object",
+            "properties": {
+                "payment_info": {
+                    "$ref": "#/definitions/dto.PaymentInfoDto"
+                }
+            }
+        },
+        "dto.CreatePaymentRequestDto": {
+            "type": "object",
+            "required": [
+                "amount",
+                "payment_attempt_id"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "payment_attempt_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreatePaymentResponseDto": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "attempt_id": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "paid_at": {
+                    "type": "string"
+                },
+                "payment_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.DeletePaymentInfoRequestDto": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.DeletePaymentInfoResponseDto": {
+            "type": "object",
+            "properties": {
+                "deleted_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GetAllPaymentInfosResponseDto": {
+            "type": "object",
+            "properties": {
+                "delivery_infos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PaymentInfoDto"
+                    }
+                }
+            }
+        },
+        "dto.GetAllPaymentsResponseDto": {
+            "type": "object",
+            "properties": {
+                "payments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PaymentDto"
+                    }
+                }
+            }
+        },
+        "dto.GetPaymentAttemptResponseDto": {
+            "type": "object",
+            "properties": {
+                "method": {
+                    "$ref": "#/definitions/models.PaymentMethod"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "payment_attempt_id": {
+                    "type": "string"
+                },
+                "payment_info_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.PaymentStatus"
+                }
+            }
+        },
+        "dto.GetPaymentByIDResponseDto": {
+            "type": "object",
+            "properties": {
+                "payment": {
+                    "$ref": "#/definitions/dto.PaymentDto"
+                }
+            }
+        },
+        "dto.GetPaymentInfoByIDResponseDto": {
+            "type": "object",
+            "properties": {
+                "payment_info": {
+                    "$ref": "#/definitions/dto.PaymentInfoDto"
+                }
+            }
+        },
+        "dto.PaymentDto": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "attempt_id": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "paid_at": {
+                    "type": "string"
+                },
+                "payment_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PaymentInfoDto": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "$ref": "#/definitions/models.PaymentMethod"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.UpdatePaymentAttemptRequestDto": {
+            "type": "object",
+            "required": [
+                "payment_attempt_id",
+                "status"
+            ],
+            "properties": {
+                "payment_attempt_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.PaymentStatus"
+                }
+            }
+        },
+        "dto.UpdatePaymentAttemptResponseDto": {
+            "type": "object",
+            "properties": {
+                "method": {
+                    "$ref": "#/definitions/models.PaymentMethod"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "payment_attempt_id": {
+                    "type": "string"
+                },
+                "payment_info_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.PaymentStatus"
+                }
+            }
+        },
+        "dto.UpdatePaymentInfoRequestDto": {
+            "type": "object",
+            "required": [
+                "details",
+                "id",
+                "payment_method"
+            ],
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "enum": [
+                        "credit_card",
+                        "promptpay"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PaymentMethod"
+                        }
+                    ]
+                }
+            }
+        },
+        "dto.UpdatePaymentInfoResponseDto": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "$ref": "#/definitions/models.PaymentMethod"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.PaymentMethod": {
+            "type": "string",
+            "enum": [
+                "credit_card",
+                "promptpay"
+            ],
+            "x-enum-varnames": [
+                "PaymentMethodCreditCard",
+                "PaymentMethodPromptPay"
+            ]
+        },
+        "models.PaymentStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "success",
+                "failed"
+            ],
+            "x-enum-varnames": [
+                "PaymentStatusPending",
+                "PaymentStatusSuccess",
+                "PaymentStatusFailed"
+            ]
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "ApiKeyAuth": {
             "description": "Type \"Bearer\" followed by a space and JWT token.",

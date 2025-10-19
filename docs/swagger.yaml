@@ -1,11 +1,642 @@
 basePath: /
+definitions:
+  dto.CreatePaymentAttemptRequestDto:
+    properties:
+      order_id:
+        type: string
+      payment_info_id:
+        type: string
+    required:
+    - order_id
+    - payment_info_id
+    type: object
+  dto.CreatePaymentAttemptResponseDto:
+    properties:
+      payment_attempt_id:
+        type: string
+    type: object
+  dto.CreatePaymentInfoRequestDto:
+    properties:
+      details:
+        items:
+          type: integer
+        type: array
+      payment_method:
+        allOf:
+        - $ref: '#/definitions/models.PaymentMethod'
+        enum:
+        - credit_card
+        - promptpay
+    required:
+    - details
+    - payment_method
+    type: object
+  dto.CreatePaymentInfoResponseDto:
+    properties:
+      payment_info:
+        $ref: '#/definitions/dto.PaymentInfoDto'
+    type: object
+  dto.CreatePaymentRequestDto:
+    properties:
+      amount:
+        minimum: 0
+        type: number
+      payment_attempt_id:
+        type: string
+    required:
+    - amount
+    - payment_attempt_id
+    type: object
+  dto.CreatePaymentResponseDto:
+    properties:
+      amount:
+        type: number
+      attempt_id:
+        type: string
+      order_id:
+        type: string
+      paid_at:
+        type: string
+      payment_id:
+        type: string
+    type: object
+  dto.DeletePaymentInfoRequestDto:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  dto.DeletePaymentInfoResponseDto:
+    properties:
+      deleted_at:
+        type: string
+      id:
+        type: string
+    type: object
+  dto.GetAllPaymentInfosResponseDto:
+    properties:
+      delivery_infos:
+        items:
+          $ref: '#/definitions/dto.PaymentInfoDto'
+        type: array
+    type: object
+  dto.GetAllPaymentsResponseDto:
+    properties:
+      payments:
+        items:
+          $ref: '#/definitions/dto.PaymentDto'
+        type: array
+    type: object
+  dto.GetPaymentAttemptResponseDto:
+    properties:
+      method:
+        $ref: '#/definitions/models.PaymentMethod'
+      order_id:
+        type: string
+      payment_attempt_id:
+        type: string
+      payment_info_id:
+        type: string
+      status:
+        $ref: '#/definitions/models.PaymentStatus'
+    type: object
+  dto.GetPaymentByIDResponseDto:
+    properties:
+      payment:
+        $ref: '#/definitions/dto.PaymentDto'
+    type: object
+  dto.GetPaymentInfoByIDResponseDto:
+    properties:
+      payment_info:
+        $ref: '#/definitions/dto.PaymentInfoDto'
+    type: object
+  dto.PaymentDto:
+    properties:
+      amount:
+        type: number
+      attempt_id:
+        type: string
+      order_id:
+        type: string
+      paid_at:
+        type: string
+      payment_id:
+        type: string
+    type: object
+  dto.PaymentInfoDto:
+    properties:
+      created_at:
+        type: string
+      details:
+        items:
+          type: integer
+        type: array
+      id:
+        type: string
+      payment_method:
+        $ref: '#/definitions/models.PaymentMethod'
+      user_id:
+        type: string
+      version:
+        type: integer
+    type: object
+  dto.UpdatePaymentAttemptRequestDto:
+    properties:
+      payment_attempt_id:
+        type: string
+      status:
+        $ref: '#/definitions/models.PaymentStatus'
+    required:
+    - payment_attempt_id
+    - status
+    type: object
+  dto.UpdatePaymentAttemptResponseDto:
+    properties:
+      method:
+        $ref: '#/definitions/models.PaymentMethod'
+      order_id:
+        type: string
+      payment_attempt_id:
+        type: string
+      payment_info_id:
+        type: string
+      status:
+        $ref: '#/definitions/models.PaymentStatus'
+    type: object
+  dto.UpdatePaymentInfoRequestDto:
+    properties:
+      details:
+        items:
+          type: integer
+        type: array
+      id:
+        type: string
+      payment_method:
+        allOf:
+        - $ref: '#/definitions/models.PaymentMethod'
+        enum:
+        - credit_card
+        - promptpay
+    required:
+    - details
+    - id
+    - payment_method
+    type: object
+  dto.UpdatePaymentInfoResponseDto:
+    properties:
+      created_at:
+        type: string
+      details:
+        items:
+          type: integer
+        type: array
+      id:
+        type: string
+      payment_method:
+        $ref: '#/definitions/models.PaymentMethod'
+      user_id:
+        type: string
+      version:
+        type: integer
+    type: object
+  models.PaymentMethod:
+    enum:
+    - credit_card
+    - promptpay
+    type: string
+    x-enum-varnames:
+    - PaymentMethodCreditCard
+    - PaymentMethodPromptPay
+  models.PaymentStatus:
+    enum:
+    - pending
+    - success
+    - failed
+    type: string
+    x-enum-varnames:
+    - PaymentStatusPending
+    - PaymentStatusSuccess
+    - PaymentStatusFailed
+  response.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
 host: localhost:8083
 info:
   contact: {}
   description: This is a sample server for a user API.
   title: User API
   version: "1.0"
-paths: {}
+paths:
+  /api/payment/v1/:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all payment records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payments retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.GetAllPaymentsResponseDto'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to retrieve payments
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List payments
+      tags:
+      - payments
+    post:
+      consumes:
+      - application/json
+      description: Create a payment record for a successful payment attempt
+      parameters:
+      - description: Payment creation payload
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePaymentRequestDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Payment created successfully
+          schema:
+            $ref: '#/definitions/dto.CreatePaymentResponseDto'
+        "400":
+          description: Invalid request body or business rule violation
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Payment attempt not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to create payment
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create payment
+      tags:
+      - payments
+  /api/payment/v1/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a payment record by its identifier
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.GetPaymentByIDResponseDto'
+        "400":
+          description: Invalid payment ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Payment not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to retrieve payment
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get payment by ID
+      tags:
+      - payments
+  /api/payment/v1/attempt:
+    patch:
+      consumes:
+      - application/json
+      description: Update the status of an existing payment attempt
+      parameters:
+      - description: Payment attempt status update payload
+        in: body
+        name: payment_attempt
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePaymentAttemptRequestDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment attempt updated successfully
+          schema:
+            $ref: '#/definitions/dto.UpdatePaymentAttemptResponseDto'
+        "400":
+          description: Invalid request body or identifiers
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Payment attempt not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to update payment attempt
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update payment attempt status
+      tags:
+      - payment-attempt
+    post:
+      consumes:
+      - application/json
+      description: Create a new payment attempt for the authenticated patient
+      parameters:
+      - description: Payment attempt data
+        in: body
+        name: payment_attempt
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePaymentAttemptRequestDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Payment attempt created successfully
+          schema:
+            $ref: '#/definitions/dto.CreatePaymentAttemptResponseDto'
+        "400":
+          description: Invalid request body or identifiers
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Payment information not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to create payment attempt
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create payment attempt
+      tags:
+      - payment-attempt
+  /api/payment/v1/attempt/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a payment attempt record by its identifier
+      parameters:
+      - description: Payment attempt ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment attempt retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.GetPaymentAttemptResponseDto'
+        "400":
+          description: Invalid payment attempt ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Payment attempt not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to retrieve payment attempt
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get payment attempt by ID
+      tags:
+      - payment-attempt
+  /api/payment/v1/info:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing payment information record
+      parameters:
+      - description: Payment information ID to delete
+        in: body
+        name: payment_info
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DeletePaymentInfoRequestDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment information deleted successfully
+          schema:
+            $ref: '#/definitions/dto.DeletePaymentInfoResponseDto'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Payment information not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to delete payment information
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete payment information
+      tags:
+      - payment-info
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all payment information records for the authenticated
+        patient
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment information retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.GetAllPaymentInfosResponseDto'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to retrieve payment information
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List payment information
+      tags:
+      - payment-info
+    post:
+      consumes:
+      - application/json
+      description: Create a new payment method for the authenticated patient
+      parameters:
+      - description: Payment information to create
+        in: body
+        name: payment_info
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePaymentInfoRequestDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Payment information created successfully
+          schema:
+            $ref: '#/definitions/dto.CreatePaymentInfoResponseDto'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to create payment information
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create payment information
+      tags:
+      - payment-info
+    put:
+      consumes:
+      - application/json
+      description: Update an existing payment information record
+      parameters:
+      - description: Payment information to update
+        in: body
+        name: payment_info
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePaymentInfoRequestDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment information updated successfully
+          schema:
+            $ref: '#/definitions/dto.UpdatePaymentInfoResponseDto'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Payment information not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to update payment information
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update payment information
+      tags:
+      - payment-info
+  /api/payment/v1/info/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a payment information record by its identifier
+      parameters:
+      - description: Payment information ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment information retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.GetPaymentInfoByIDResponseDto'
+        "400":
+          description: Invalid payment information ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Payment information not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to retrieve payment information
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get payment information by ID
+      tags:
+      - payment-info
 schemes:
 - http
 securityDefinitions:
