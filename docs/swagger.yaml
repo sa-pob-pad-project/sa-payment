@@ -223,11 +223,11 @@ definitions:
       error:
         type: string
     type: object
-host: localhost:8083
+host: localhost:8003
 info:
   contact: {}
-  description: This is a sample server for a user API.
-  title: User API
+  description: API documentation for the SA Payment service.
+  title: SA Payment API
   version: "1.0"
 paths:
   /api/payment/v1/:

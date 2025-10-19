@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"order-service/pkg/jwt"
+	"payment-service/pkg/jwt"
 
 	"github.com/gofiber/fiber/v2"
 )

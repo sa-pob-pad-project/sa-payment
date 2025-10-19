@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	client_dto "order-service/pkg/clients/dto"
-	contextUtils "order-service/pkg/context"
+	client_dto "payment-service/pkg/clients/dto"
+	contextUtils "payment-service/pkg/context"
 
 	"github.com/google/uuid"
 )

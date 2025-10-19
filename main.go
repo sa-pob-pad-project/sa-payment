@@ -11,15 +11,15 @@ import (
 	"os"
 	"reflect"
 
-	// "user-service/cmd"
-	"order-service/pkg/clients"
-	"order-service/pkg/config"
-	dbpkg "order-service/pkg/db"
-	"order-service/pkg/handlers"
-	"order-service/pkg/jwt"
-	"order-service/pkg/repository"
-	"order-service/pkg/routes"
-	service "order-service/pkg/services"
+	// "payment-service/cmd"
+	"payment-service/pkg/clients"
+	"payment-service/pkg/config"
+	dbpkg "payment-service/pkg/db"
+	"payment-service/pkg/handlers"
+	"payment-service/pkg/jwt"
+	"payment-service/pkg/repository"
+	"payment-service/pkg/routes"
+	service "payment-service/pkg/services"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -44,10 +44,10 @@ func migrateUp(sqlDB *sql.DB) error {
 	return nil
 }
 
-// @title User API
-// @description This is a sample server for a user API.
+// @title payment API
+// @description This is a sample server for a payment API.
 // @version 1.0
-// @host localhost:8083
+// @host localhost:8003
 // @BasePath /
 // @schemes http
 // @securityDefinitions.apikey ApiKeyAuth
@@ -139,8 +139,8 @@ func main() {
 
 	port := config.Get("APP_PORT", "8000")
 	fmt.Println("Server is running on port " + port)
-	// listen on all interfaces for containerized envs; change back to "localhost:"+port if desired
-	if err := app.Listen("localhost:" + port); err != nil {
+	// listen on all interfaces so container port mapping works correctly
+	if err := app.Listen(":" + port); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"order-service/pkg/models"
+	"payment-service/pkg/models"
 )
 
 type PaymentDto struct {

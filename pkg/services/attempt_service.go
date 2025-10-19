@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"errors"
-	"order-service/pkg/apperr"
-	contextUtils "order-service/pkg/context"
-	"order-service/pkg/dto"
-	"order-service/pkg/models"
-	"order-service/pkg/utils"
+	"payment-service/pkg/apperr"
+	contextUtils "payment-service/pkg/context"
+	"payment-service/pkg/dto"
+	"payment-service/pkg/models"
+	"payment-service/pkg/utils"
 	"time"
 
 	"github.com/google/uuid"

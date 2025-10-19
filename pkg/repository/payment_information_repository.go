@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"order-service/pkg/models"
+	"payment-service/pkg/models"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

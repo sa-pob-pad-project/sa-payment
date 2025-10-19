@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"order-service/pkg/apperr"
-	contextUtils "order-service/pkg/context"
-	"order-service/pkg/dto"
-	"order-service/pkg/response"
+	"payment-service/pkg/apperr"
+	contextUtils "payment-service/pkg/context"
+	"payment-service/pkg/dto"
+	"payment-service/pkg/response"
 
 	"github.com/gofiber/fiber/v2"
 )

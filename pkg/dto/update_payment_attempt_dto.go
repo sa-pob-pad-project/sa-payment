@@ -1,6 +1,6 @@
 package dto
 
-import "order-service/pkg/models"
+import "payment-service/pkg/models"
 
 type UpdatePaymentAttemptRequestDto struct {
 	PaymentAttemptID string               `json:"payment_attempt_id" validate:"required"`

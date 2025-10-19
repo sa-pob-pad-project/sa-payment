@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"order-service/pkg/models"
+	"payment-service/pkg/models"
 )
 
 // type CreditCardDetails struct {
