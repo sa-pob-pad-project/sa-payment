@@ -15,10 +15,11 @@ import (
 func SetupRoutes(app *fiber.App, paymentHandler *handlers.PaymentHandler, jwtSvc *jwt.JwtService) {
 
 	api := app.Group("/api")
-	api.Get("/swagger/*", swagger.HandlerDefault)
 
 	// Payment Routes
 	payment := api.Group("/payment")
+	payment.Get("/swagger/*", swagger.HandlerDefault)
+
 	paymentV1 := payment.Group("/v1")
 	paymentV1.Use(middleware.JwtMiddleware(jwtSvc))
 	// payment
