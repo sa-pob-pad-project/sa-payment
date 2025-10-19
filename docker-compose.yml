@@ -15,6 +15,10 @@ services:
       interval: 3s
       timeout: 2s
       retries: 20
+    networks:
+      - default
+
+    
 
   sa_payment:
     image: sa_payment:latest
@@ -30,7 +34,12 @@ services:
       - DB_HOST=sa_payment_postgres
       - DB_PORT=5432
 
+    networks:
+      - default
+      - sa_gateway_net
+
 networks:
   default:
     driver: bridge
-
+  sa_gateway_net:
+    external: true
