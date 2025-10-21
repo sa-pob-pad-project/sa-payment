@@ -80,6 +80,19 @@ func (h *PaymentHandler) GetPaymentInfo(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(res)
 }
 
+// GetPaymentInfoByMethod godoc
+// @Summary Get payment information by payment method
+// @Description Retrieve payment information records filtered by payment method for the authenticated patient
+// @Tags payment-info
+// @Accept json
+// @Produce json
+// @Param method query string true "Payment method to filter by (e.g., credit_card, debit_card, digital_wallet)"
+// @Success 200 {object} dto.GetAllPaymentInfosResponseDto "Payment information retrieved successfully"
+// @Failure 400 {object} response.ErrorResponse "Missing or invalid payment method parameter"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 500 {object} response.ErrorResponse "Failed to retrieve payment information"
+// @Router /api/payment/v1/info [get]
+// @Security ApiKeyAuth
 func (h *PaymentHandler) GetPaymentInfoByMethod(c *fiber.Ctx) error {
 	method := c.Query("method")
 	if method == "" {
