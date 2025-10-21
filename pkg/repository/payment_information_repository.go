@@ -63,7 +63,7 @@ func (r *PaymentInformationRepository) FindByUserID(ctx context.Context, userID 
 	return paymentInfos, nil
 }
 
-func (r *PaymentInformationRepository) FindByUserIDAndType(ctx context.Context, userID uuid.UUID, paymentMethod models.PaymentMethod) ([]models.PaymentInformation, error) {
+func (r *PaymentInformationRepository) FindByUserIDAndType(ctx context.Context, userID uuid.UUID, paymentMethod string) ([]models.PaymentInformation, error) {
 	var paymentInfos []models.PaymentInformation
 	if err := r.db.WithContext(ctx).Where("user_id = ? AND type = ?", userID, paymentMethod).Find(&paymentInfos).Error; err != nil {
 		return nil, err

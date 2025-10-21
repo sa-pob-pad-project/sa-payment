@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"payment-service/pkg/apperr"
 	"payment-service/pkg/clients"
@@ -49,11 +50,16 @@ func (s *PaymentService) CreatePaymentInfo(ctx context.Context, body dto.CreateP
 		return nil, apperr.New(apperr.CodeForbidden, "only patients can create payment information", nil)
 	}
 
+	detailsJSON, err := json.Marshal(body.Details)
+	if err != nil {
+		return nil, apperr.New(apperr.CodeBadRequest, "invalid payment details", err)
+	}
+
 	paymentInfo := &models.PaymentInformation{
 		ID:      utils.GenerateUUIDv7(),
 		UserID:  utils.StringToUUIDv7(patientID),
 		Type:    body.PaymentMethod,
-		Details: body.Details,
+		Details: detailsJSON,
 		Version: 1,
 	}
 
@@ -83,6 +89,26 @@ func (s *PaymentService) GetPaymentInfoByID(ctx context.Context, id string) (*dt
 
 	return &dto.GetPaymentInfoByIDResponseDto{
 		PaymentInfo: dto.ToPaymentInfoDto(paymentInfo),
+	}, nil
+}
+
+func (s *PaymentService) GetPaymentInfoByMethod(ctx context.Context, method string) (*dto.GetPaymentInfoByIDResponseDto, error) {
+	userID := contextUtils.GetUserId(ctx)
+	paymentInfos, err := s.paymentInformationRepository.FindByUserIDAndType(ctx, utils.StringToUUIDv7(userID), method)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperr.New(apperr.CodeNotFound, "payment information not found", nil)
+		}
+		return nil, apperr.New(apperr.CodeInternal, "failed to retrieve payment information", err)
+	}
+
+	if len(paymentInfos) == 0 {
+		return nil, apperr.New(apperr.CodeNotFound, "payment information not found", nil)
+	}
+
+	// For simplicity, return the first matching payment info
+	return &dto.GetPaymentInfoByIDResponseDto{
+		PaymentInfo: dto.ToPaymentInfoDto(&paymentInfos[0]),
 	}, nil
 }
 

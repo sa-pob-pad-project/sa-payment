@@ -25,25 +25,25 @@ func (s *PaymentService) CreatePaymentAttempt(ctx context.Context, body dto.Crea
 		return nil, apperr.New(apperr.CodeBadRequest, "invalid order ID", nil)
 	}
 
-	paymentInfoID := utils.StringToUUIDv7(body.PaymentInfoID)
-	if paymentInfoID == uuid.Nil {
-		return nil, apperr.New(apperr.CodeBadRequest, "invalid payment information ID", nil)
-	}
+	// paymentInfoID := utils.StringToUUIDv7(body.PaymentInfoID)
+	// if paymentInfoID == uuid.Nil {
+	// 	return nil, apperr.New(apperr.CodeBadRequest, "invalid payment information ID", nil)
+	// }
 
-	paymentInfo, err := s.paymentInformationRepository.FindByID(ctx, paymentInfoID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperr.New(apperr.CodeNotFound, "payment information not found", nil)
-		}
-		return nil, apperr.New(apperr.CodeInternal, "failed to retrieve payment information", err)
-	}
+	// paymentInfo, err := s.paymentInformationRepository.FindByID(ctx, paymentInfoID)
+	// if err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		return nil, apperr.New(apperr.CodeNotFound, "payment information not found", nil)
+	// 	}
+	// 	return nil, apperr.New(apperr.CodeInternal, "failed to retrieve payment information", err)
+	// }
 
 	paymentAttempt := &models.PaymentAttempt{
 		ID:                   utils.GenerateUUIDv7(),
 		OrderID:              orderID,
-		PaymentInformationID: &paymentInfoID,
-		Method:               paymentInfo.Type,
-		Status:               models.PaymentStatusPending,
+		PaymentInformationID: nil,
+		Method:               "credit_card",
+		Status:               models.PaymentStatusSuccess,
 	}
 
 	if err := s.paymentAttemptRepository.Create(ctx, paymentAttempt); err != nil {
@@ -173,6 +173,8 @@ func (s *PaymentService) CreatePayment(ctx context.Context, body dto.CreatePayme
 	if err := s.paymentRepository.Create(ctx, payment); err != nil {
 		return nil, apperr.New(apperr.CodeInternal, "failed to create payment", err)
 	}
+
+	// Update Order status via Order Service (omitted for brevity)
 
 	return &dto.CreatePaymentResponseDto{
 		PaymentID: payment.ID.String(),

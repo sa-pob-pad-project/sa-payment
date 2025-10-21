@@ -80,6 +80,22 @@ func (h *PaymentHandler) GetPaymentInfo(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(res)
 }
 
+func (h *PaymentHandler) GetPaymentInfoByMethod(c *fiber.Ctx) error {
+	method := c.Query("method")
+	if method == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Missing payment method",
+		})
+	}
+
+	ctx := contextUtils.GetContext(c)
+	res, err := h.paymentService.GetPaymentInfoByMethod(ctx, method)
+	if err != nil {
+		return apperr.WriteError(c, err)
+	}
+	return c.Status(fiber.StatusOK).JSON(res)
+}
+
 // GetAllPaymentInfos godoc
 // @Summary List payment information
 // @Description Retrieve all payment information records for the authenticated patient
